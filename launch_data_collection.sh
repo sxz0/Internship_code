@@ -11,3 +11,9 @@ do
 	echo "Execute './run_gpu_treasure_VC4.sh &' in 192.168.0.$ip"
 	sshpass -p "raspberry" ssh pi@192.168.0.$ip "cd py-videocore; ./run_gpu_treasure_VC4.sh > /dev/null &"
 done
+
+for ip in $(seq 26 35)
+do
+	echo "Execute './run_gpu_treasure_VC4.sh &' in 192.168.0.$ip"
+	sshpass -p "raspberry" ssh pi@192.168.0.$ip "cd py-videocore; ./run_gpu_treasure_VC4.sh > /dev/null &"
+done
