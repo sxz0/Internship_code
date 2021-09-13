@@ -23,14 +23,14 @@ def get_QPU_freq(s):
             return sum(result)
 
 def cpu_true_random(n):
-     with RegisterMapping() as regmap:
-        with PerformanceCounter(regmap, [CORE_PCTR_CYCLE_COUNT]) as pctr:
+     with RegisterMapping(Driver()) as regmap:
+        with PerformanceCounter(regmap, [13,14,15,16,17,28,19]) as pctr:
             a=os.urandom(n)
             result = pctr.result()
             return (sum(result))
 
 def cpu_hash():
-    with RegisterMapping() as regmap:
+    with RegisterMapping(Driver()) as regmap:
         with PerformanceCounter(regmap, [13,14,15,16,17,28,19]) as pctr:
             h=int(hashlib.sha256("test string".encode('utf-8')).hexdigest(), 16) % 10**8
             result = pctr.result()
@@ -52,3 +52,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
