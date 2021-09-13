@@ -1073,11 +1073,14 @@ def main():
 		#results.append(c)
 		#results.append(f)
 		results.append(os.popen("vcgencmd measure_temp | cut -d = -f 2 | cut -d \"'\" -f 1").read()[:-1])
-		for i in test_clock():
-                	results.append(i)
-		for i in test_clock():
-                	results.append(i)
+		
 		results.append(get_QPU_freq(c))
+		
+		for i in test_clock():
+                	results.append(i)
+		for i in test_clock():
+                	results.append(i)
+		
 		results.append(cpu_hash())
 		#results.append(os.popen("vcgencmd measure_clock core").read[:-1])
 

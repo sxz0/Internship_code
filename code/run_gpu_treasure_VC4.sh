@@ -3,7 +3,7 @@
 #do
 #sudo cpufreq-set -g $f
 rm feat_gpu_*
-mac=$( cat /sys/class/net/eth0/address )
+mac=$( cat /sys/class/net/eth0/address | tr : _ )
 for s in `seq 0 19` #39
 do
 	for i in `seq 0 9`
