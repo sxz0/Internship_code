@@ -33,6 +33,4 @@ else
 	done
 fi
 
-mkdir termina
 #done
-
