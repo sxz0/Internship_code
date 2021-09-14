@@ -14,4 +14,4 @@ The devices where organized in a local network with the following IPs:
 
 *TREASURE* folder is the one to be placed in the RPi devices, it requires to have py-videocore (RPi Zero/1/2/3) or py-videocore6 (RPi 4) installed.
 
-*config.txt* and *cmdline.txt* should be placed in /boot partition of the SD to enable turbo_mode and isolate CPU 3.
+*/boot/ config.txt* and *cmdline.txt* should be placed in /boot partition of the SD to enable turbo_mode and isolate CPU 3.
