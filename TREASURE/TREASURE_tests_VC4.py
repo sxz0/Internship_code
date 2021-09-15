@@ -9,17 +9,17 @@ import hashlib
 
 dri=Driver()
 
-def sleep(duration, get_now=time.perf_counter):
-    now = time.time_ns()
+def sleep(duration):
     duration=duration*1000000000
+    now = time.perf_counter_ns()
     end = now + duration
     while now < end:
-        now = time.time_ns()
+        now = time.perf_counter_ns()
 
 def get_QPU_freq(s):
     with RegisterMapping(dri) as regmap:
         with PerformanceCounter(regmap, [13,14,15,16,17,18,19]) as pctr:
-            time.sleep(s)
+            sleep(s)
             result = pctr.result()
             return sum(result)
 
@@ -51,6 +51,8 @@ def getHwAddr(ifname):
 
 def main():
 	s=int(sys.argv[1])
+	r=int(sys.argv[2])
+	
 	results=[]
 	results.append(os.popen("vcgencmd measure_temp | cut -d = -f 2 | cut -d \"'\" -f 1").read()[:-1])
 	results.append(get_QPU_freq(s))
@@ -60,7 +62,7 @@ def main():
 	
 	results.append(cpu_hash())
 	results.append(cpu_random())
-	results.append(cpu_true_random(10))
+	results.append(cpu_true_random(r))
 	
 	results.append(getHwAddr('eth0'))
 	print(*results, sep=',')

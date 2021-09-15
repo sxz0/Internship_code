@@ -230,9 +230,9 @@ def sgemm_rnn_naive():
         B[:] = B_ref
         C[:] = C_ref
 
-        start = time.time_ns()
+        start = time.perf_counter_ns()
         C_ref[:] = alpha * A_ref.dot(B_ref) + beta * C_ref
-        time_ref = time.time_ns() - start
+        time_ref = time.perf_counter_ns() - start
 
         def block_2x4_params(i, j):
             tile_P = P // 2
@@ -256,9 +256,9 @@ def sgemm_rnn_naive():
         unif[0] = unif_params.addresses()[0,0]
         unif[1] = unif_params.shape[1]
 
-        start = time.time_ns()
+        start = time.perf_counter_ns()
         drv.execute(code, unif.addresses()[0], thread = thread)
-        time_gpu = time.time_ns() - start
+        time_gpu = time.perf_counter_ns() - start
 
         np.set_printoptions(threshold=np.inf)
 
@@ -267,17 +267,17 @@ def sgemm_rnn_naive():
 
         return [time_ref,time_gpu] #Gflops(time_ref),time_gpu,Gflops(time_gpu)]
 
-def sleep(duration, get_now=time.perf_counter):
-    now = time.time_ns()
+def sleep(duration):
     duration=duration*1000000000
+    now = time.perf_counter_ns()
     end = now + duration
     while now < end:
-        now = time.time_ns()
+        now = time.perf_counter_ns()
 
 def get_QPU_freq(seg):
 	with RegisterMapping() as regmap:
 		with PerformanceCounter(regmap, [CORE_PCTR_CYCLE_COUNT]) as pctr:
-			time.sleep(seg)
+			sleep(seg)
 			result = pctr.result()
 			return (result[0] * 1e-6)
 
@@ -419,9 +419,9 @@ def summation(*, length, num_qpus=8, unroll_shift=5):
         unif[2] = Y.addresses()[0]
 
 
-        start = time.time_ns()
+        start = time.perf_counter_ns()
         drv.execute(code, unif.addresses()[0], thread=num_qpus)
-        end = time.time_ns()
+        end = time.perf_counter_ns()
 
         assert sum(Y) % 2**32 == (length - 1) * length // 2 % 2**32
         return [end - start] #,length * 4 / (end - start) * 1e-6]
@@ -541,9 +541,9 @@ def scopy(*, length, num_qpus=8, unroll_shift=0):
         unif[1] = X.addresses()[0]
         unif[2] = Y.addresses()[0]
 
-        start = time.time_ns()
+        start = time.perf_counter_ns()
         drv.execute(code, unif.addresses()[0], thread=num_qpus)
-        end = time.time_ns()
+        end = time.perf_counter_ns()
 
         assert np.array_equal(X, Y)
 
@@ -706,10 +706,10 @@ def test_clock():
         unif[1] = done.addresses()[0]
 
         with drv.compute_shader_dispatcher() as csd:
-            start = time.time_ns()
+            start = time.perf_counter_ns()
             csd.dispatch(code, unif.addresses()[0])
             bench.wait_address(done)
-            end = time.time_ns()
+            end = time.perf_counter_ns()
             return [f * 5 / (end - start) / 1000 / 1000 * 4] #end - start] #, f * 5 / (end - start) / 1000 / 1000 * 4]
 
 
@@ -751,11 +751,11 @@ def test_multiple_dispatch_delay():
         unif[:,0] = data.addresses()[:,0]
         unif[:,1] = done.addresses()[0]
 
-        ref_start = time.time_ns()
+        ref_start = time.perf_counter_ns()
         with drv.compute_shader_dispatcher() as csd:
             for i in range(data.shape[0]):
                 csd.dispatch(code[i], unif.addresses()[i,0])
-        ref_end = time.time_ns()
+        ref_end = time.perf_counter_ns()
         assert (data == np.arange(data.shape[0]).reshape(data.shape[0],1)).all()
 
         data[:] = 0
@@ -764,10 +764,10 @@ def test_multiple_dispatch_delay():
         with drv.compute_shader_dispatcher() as csd:
             for i in range(data.shape[0]):
                 done[:] = 0
-                start = time.time_ns()
+                start = time.perf_counter_ns()
                 csd.dispatch(code[i], unif.addresses()[i,0])
                 bench.wait_address(done)
-                end = time.time_ns()
+                end = time.perf_counter_ns()
                 naive_results[i] = end - start
         assert (data == np.arange(data.shape[0]).reshape(data.shape[0],1)).all()
 
@@ -775,11 +775,11 @@ def test_multiple_dispatch_delay():
         with drv.compute_shader_dispatcher() as csd:
             for i in range(data.shape[0]):
                 done[:] = 0
-                time.sleep(1)
-                start = time.time_ns()
+                sleep(1)
+                start = time.perf_counter_ns()
                 csd.dispatch(code[i], unif.addresses()[i,0])
                 bench.wait_address(done)
-                end = time.time_ns()
+                end = time.perf_counter_ns()
                 sleep_results[i] = end - start
         assert (data == np.arange(data.shape[0]).reshape(data.shape[0],1)).all()
         return [ref_end - ref_start,np.sum(naive_results),np.sum(sleep_results)]
@@ -890,10 +890,10 @@ def test_tmu_load_1_slot_1_qpu():
                         Y[:] = 0.0
                         done[:] = 0
 
-                        start = time.time_ns()
+                        start = time.perf_counter_ns()
                         csd.dispatch(code, unif.addresses()[0], thread = 8)
                         bench.wait_address(done)
-                        end = time.time_ns()
+                        end = time.perf_counter_ns()
 
                         results[nops,i] = end - start
 
@@ -1036,10 +1036,10 @@ def test_tmu_load_2_slot_1_qpu():
                         Y[:] = 0.0
                         done[:] = 0
 
-                        start = time.time_ns()
+                        start = time.perf_counter_ns()
                         csd.dispatch(code, unif.addresses()[0], thread = 8)
                         bench.wait_address(done)
-                        end = time.time_ns()
+                        end = time.perf_counter_ns()
 
                         results[nops,i] = end - start
 
@@ -1066,7 +1066,9 @@ def getHwAddr(ifname):
 def main():
 	#for n in range(0,100):
 		#
-		c=int(sys.argv[1])
+		s=int(sys.argv[1])
+		r=int(sys.argv[2])
+		
 		#f=sys.argv[2]
 		mac=getHwAddr('eth0')
 		results=[]
@@ -1074,7 +1076,7 @@ def main():
 		#results.append(f)
 		results.append(os.popen("vcgencmd measure_temp | cut -d = -f 2 | cut -d \"'\" -f 1").read()[:-1])
 		
-		results.append(get_QPU_freq(c))
+		results.append(get_QPU_freq(s))
 		
 		for i in test_clock():
                 	results.append(i)
@@ -1083,7 +1085,10 @@ def main():
 		
 		results.append(cpu_hash())
 		#results.append(os.popen("vcgencmd measure_clock core").read[:-1])
-
+		results.append(cpu_random())
+		results.append(cpu_true_random(r))
+		
+		
 		"""results.append(get_QPU_freq(1))
 		results.append(get_QPU_freq(2))
 		results.append(get_QPU_freq(5))
@@ -1091,8 +1096,7 @@ def main():
 		results.append(get_QPU_freq(8))
 		results.append(get_QPU_freq(10))
 		results.append(get_QPU_freq(60))"""
-		results.append(cpu_random())
-		results.append(cpu_true_random(10))
+
 		"""results.append(cpu_true_random(1000))
 		results.append(cpu_true_random(1000000))
 		results.append(cpu_true_random(100000000))
@@ -1112,6 +1116,7 @@ def main():
 		#	results.append(i)
 		#for i in test_tmu_load_2_slot_1_qpu():
 		#	results.append(i)
+		
 		results.append(mac)
 		print(*results, sep=',')
 		#print(memset(fill=0x5a5a5a5a, length=16 * 1024 * 1024))
