@@ -6,7 +6,7 @@ model=$( cat /proc/device-tree/model | sed 's/\x0//g' )
 loop1=19
 loop2=9
 core=3
-secs=60
+secs=240
 random=1000000
 
 if [[ $model == *"Pi 4"* ]];
