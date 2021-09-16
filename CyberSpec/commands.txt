@@ -1,0 +1,3 @@
+nohup python3 REST_server.py &
+
+systemctl enable cyberspec.service
