@@ -1,0 +1,12 @@
+[Unit]
+Description=Sensor Perf Monitoring Service
+After=network.target
+
+[Service]
+PermissionsStartOnly=true
+ExecStart=/bin/bash /root/new_sampler_50_rest.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
