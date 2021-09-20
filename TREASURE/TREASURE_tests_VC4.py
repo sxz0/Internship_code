@@ -19,7 +19,7 @@ def sleep(duration):
 def get_QPU_freq(s):
     with RegisterMapping(dri) as regmap:
         with PerformanceCounter(regmap, [13,14,15,16,17,18,19]) as pctr:
-            sleep(s)
+            time.sleep(s)
             result = pctr.result()
             return sum(result)
 

@@ -277,7 +277,7 @@ def sleep(duration):
 def get_QPU_freq(seg):
 	with RegisterMapping() as regmap:
 		with PerformanceCounter(regmap, [CORE_PCTR_CYCLE_COUNT]) as pctr:
-			sleep(seg)
+			time.sleep(seg)
 			result = pctr.result()
 			return (result[0] * 1e-6)
 
@@ -775,7 +775,7 @@ def test_multiple_dispatch_delay():
         with drv.compute_shader_dispatcher() as csd:
             for i in range(data.shape[0]):
                 done[:] = 0
-                sleep(1)
+                time.sleep(1)
                 start = time.perf_counter_ns()
                 csd.dispatch(code[i], unif.addresses()[i,0])
                 bench.wait_address(done)
