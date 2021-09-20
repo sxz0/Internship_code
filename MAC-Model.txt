@@ -1,0 +1,32 @@
+b8_27_eb_e1_66_63 Raspberry Pi 3 Model B Plus Rev 1.3
+b8_27_eb_c2_b6_e9 Raspberry Pi 3 Model B Plus Rev 1.3
+b8_27_eb_50_d7_8b Raspberry Pi 3 Model B Plus Rev 1.3
+b8_27_eb_0e_9d_fb Raspberry Pi 3 Model B Plus Rev 1.3
+b8_27_eb_ea_38_52 Raspberry Pi 3 Model B Plus Rev 1.3
+b8_27_eb_4c_53_a8 Raspberry Pi 3 Model B Plus Rev 1.3
+b8_27_eb_10_a7_e6 Raspberry Pi 3 Model B Plus Rev 1.3
+b8_27_eb_d5_e5_0b Raspberry Pi 3 Model B Plus Rev 1.3
+b8_27_eb_8c_24_61 Raspberry Pi 3 Model B Plus Rev 1.3
+b8_27_eb_dc_61_2f Raspberry Pi 3 Model B Plus Rev 1.3
+b8_27_eb_7f_ec_53 Raspberry Pi 3 Model B Plus Rev 1.3
+e4_5f_01_53_3d_49 Raspberry Pi 4 Model B Rev 1.4
+e4_5f_01_53_3d_c5 Raspberry Pi 4 Model B Rev 1.4
+e4_5f_01_53_3e_39 Raspberry Pi 4 Model B Rev 1.4
+e4_5f_01_53_3d_85 Raspberry Pi 4 Model B Rev 1.4
+e4_5f_01_53_3f_03 Raspberry Pi 4 Model B Rev 1.4
+dc_a6_32_4c_99_bf Raspberry Pi 4 Model B Rev 1.1
+dc_a6_32_4c_90_fb Raspberry Pi 4 Model B Rev 1.1
+dc_a6_32_4c_9a_d0 Raspberry Pi 4 Model B Rev 1.1
+dc_a6_32_4c_8e_0a Raspberry Pi 4 Model B Rev 1.1
+dc_a6_32_4c_9a_79 Raspberry Pi 4 Model B Rev 1.1
+dc_a6_32_4c_98_93 Raspberry Pi 4 Model B Rev 1.1
+b8_27_eb_4c_33_1b Raspberry Pi Model B Plus Rev 1.2
+b8_27_eb_1d_3b_13 Raspberry Pi Model B Plus Rev 1.2
+b8_27_eb_31_6d_f3 Raspberry Pi Model B Plus Rev 1.2
+b8_27_eb_6d_af_a9 Raspberry Pi Model B Plus Rev 1.2
+b8_27_eb_27_1f_a3 Raspberry Pi Model B Plus Rev 1.2
+b8_27_eb_8e_97_06 Raspberry Pi Model B Plus Rev 1.2
+b8_27_eb_91_48_fe Raspberry Pi Model B Plus Rev 1.2
+b8_27_eb_87_a7_ce Raspberry Pi Model B Plus Rev 1.2
+b8_27_eb_2d_d7_6b Raspberry Pi Model B Plus Rev 1.2
+b8_27_eb_2d_18_19 Raspberry Pi Model B Plus Rev 1.2
