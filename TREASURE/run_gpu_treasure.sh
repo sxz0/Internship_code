@@ -1,7 +1,17 @@
 #!/bin/bash
 
 rm feat_gpu_*
-mac=$( cat /sys/class/net/eth0/address | tr : _ )
+
+if [ -e /sys/class/net/eth0 ]; then
+	mac=$( cat /sys/class/net/eth0/address | tr : _ )
+elif [ -e /sys/class/net/enx* ]; then
+	mac=$( cat /sys/class/net/enx*/address | tr : _ )
+elif [ -e /sys/class/net/wlan0 ]; then
+	mac=$( cat /sys/class/net/wlan0/address | tr : _ )
+else
+	mac=$( cat /sys/class/net/wlx*/address | tr : _ )
+fi
+
 model=$( cat /proc/device-tree/model | sed 's/\x0//g' )
 loop1=19
 loop2=9
