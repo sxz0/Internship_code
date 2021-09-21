@@ -6,6 +6,7 @@ from videocore.v3d import *
 from videocore.driver import Driver
 import random
 import hashlib
+import psutil
 
 dri=Driver()
 
@@ -45,10 +46,13 @@ def cpu_hash():
              return (sum(result))
 
 def getHwAddr(ifname):
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', bytes(ifname, 'utf-8')[:15]))
-    return ':'.join('%02x' % b for b in info[18:24])
-
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', bytes(ifname, 'utf-8')[:15]))
+        return ':'.join('%02x' % b for b in info[18:24])
+    except:
+        return "00:00:00:00:00:00"
+    
 def main():
 	s=int(sys.argv[1])
 	r=int(sys.argv[2])
@@ -64,9 +68,13 @@ def main():
 	results.append(cpu_random())
 	results.append(cpu_true_random(r))
 	
-	results.append(getHwAddr('eth0'))
+	inter=list(psutil.net_if_addrs().keys())
+	inter.remove('lo')
+	inter=inter[0]
+	mac=getHwAddr(inter)
+	results.append(mac)
+	
 	print(*results, sep=',')
 
 if __name__ == "__main__":
     main()
-
