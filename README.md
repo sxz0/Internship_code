@@ -20,3 +20,5 @@ The devices where organized in a local network with the following IPs:
 *datasets* folder contains the preliminary datastets generated during the data collection.
 
 *experiments* folder contains the experiments carried out with the gathered data.
+
+*wpa_supplicant.conf* should be added in /boot/ of Rasp Zero to enable Wifi connectivity.
