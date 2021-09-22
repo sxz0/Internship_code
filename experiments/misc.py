@@ -1,4 +1,5 @@
 import time
+import pandas as pd
 
 def sleep(duration):
     duration=duration*1000000000
@@ -7,12 +8,18 @@ def sleep(duration):
     while now < end:
         now = time.perf_counter_ns()
 
-while True:
-    a=time.perf_counter_ns()
-    sleep(0.0000001)
-    print(time.perf_counter_ns()-a)
+df=pd.read_csv("../datasets/sleep_4mins.csv", index_col=False, header=None)
+df = df.iloc[:, [0,1,7]]
+df.columns=['t','f','y']
 
-    a=time.perf_counter_ns()
-    time.sleep(0.0000001)
-    print(time.perf_counter_ns()-a)
-    print("\n")
+df_murcia=pd.read_csv("../datasets/sleep_4mins_murcia.csv", index_col=False, header=None)
+df_murcia=df_murcia.iloc[:,[2,5,6]]
+df_murcia.columns=['t','f','y']
+
+print(df)
+print(df_murcia)
+
+df=df.append(df_murcia)
+
+print(df)
+df.to_csv("../datasets/sleep_4mins_Murciaconcat.csv",header=False,index=False)

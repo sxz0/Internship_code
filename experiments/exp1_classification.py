@@ -1,10 +1,11 @@
 import os
 import statistics
 import time
-
+from imblearn.over_sampling import *
 from scipy import stats
 from sklearn.decomposition import PCA
-from sklearn.ensemble import IsolationForest, RandomForestRegressor, RandomForestClassifier
+from sklearn.ensemble import IsolationForest, RandomForestRegressor, RandomForestClassifier,ExtraTreesClassifier
+from sklearn.ensemble import VotingClassifier
 import seaborn as sn
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -30,37 +31,53 @@ pd.set_option('display.max_columns', None)
 n_devices=32
 dataset_dir="../datasets"
 n_samples_device = 200 #10000
-window=100
+window=10
 test_size=0.5
 
 #Dataset to be read and processed
-dataset_name="second_collection.csv"
-
+dataset_name="sleep_4mins.csv"
+mac_model_file="../MAC-Model.txt"
 
 df=pd.read_csv(dataset_dir+"/"+dataset_name, index_col=False, header=None)
+
+#df=df.iloc[:df.shape[0]//2,:] #Half of the df
+
 final_df = pd.DataFrame()
 df_X = df.iloc[:, :-1]
 df_Y = df.iloc[:, -1:]
 print(df.describe())
-df_X = df_X.iloc[:, [1]]  # 0,1,2
+
+df_X = df_X.iloc[:, 1:]  # 0,1,2
+df_Y.columns=[0]
+
+#### Add model to the label to add clarity in the plots #####
+mac_model={}
+with open(mac_model_file) as f:
+    for line in f:
+        p=line.split(" ")
+        mac_model[p[0]]=p[3]
+df_Y[0]=df_Y[0].apply(lambda x: mac_model[str(x)]+"_"+str(x))
+
 
 for n in range(0,df.shape[0]//n_samples_device):
-
-    temp_df = pd.DataFrame()
-
     df_X_selec = df_X[n * n_samples_device:n * n_samples_device + n_samples_device]
     df_Y_selec = df_Y[n * n_samples_device:n * n_samples_device + n_samples_device]
 
-    temp_df = temp_df.append(df_Y_selec)
+    window=10
 
-    temp_df["mean"] = df_X_selec.rolling(window).mean()
-    temp_df["min"]=df_X_selec.rolling(window).min()
-    temp_df["max"]=df_X_selec.rolling(window).max()
-    temp_df["median"] = df_X_selec.rolling(window).median()
-#    temp_df["stdev"] = df_X_selec.rolling(window).std()
-#    temp_df["skew"] = df_X_selec.rolling(window).skew()
-#    temp_df["kurt"] = df_X_selec.rolling(window).kurt()
-    temp_df["sum"] = df_X_selec.rolling(window).sum()
+    temp_df = pd.DataFrame()
+    temp_df = temp_df.append(df_Y_selec)
+    for c in range(1,11):#(df_X_selec.shape[1]): #(1):
+        df_X_selec_c=df_X_selec.iloc[:, 0]
+        temp_df["mean_"+str(c)] = df_X_selec_c.rolling(window).mean()
+        temp_df["min_"+str(c)]=df_X_selec_c.rolling(window).min()
+        temp_df["max_"+str(c)]=df_X_selec_c.rolling(window).max()
+        temp_df["median_"+str(c)] = df_X_selec_c.rolling(window).median()
+        #temp_df["stdev_"+str(c)] = df_X_selec_c.rolling(window).std()
+        #temp_df["skew_"+str(c)] = df_X_selec_c.rolling(window).skew()
+        #temp_df["kurt_"+str(c)] = df_X_selec_c.rolling(window).kurt()
+        temp_df["sum_"+str(c)] = df_X_selec_c.rolling(window).sum()
+        window+=10
 
     temp_df["Y"] = df_Y_selec
 
@@ -78,12 +95,39 @@ df_X=final_df.iloc[:,:-1]
 df_Y=final_df.iloc[:,-1:]
 X_train,X_test, y_train,y_test = train_test_split(df_X,df_Y, test_size=test_size,shuffle=False)#, stratify=df_Y) #IMPORTANT
 
-#rf = RandomForestClassifier(n_estimators = 100)
+
+####DATA AUGMENTATION
+"""
+dummy_X=pd.DataFrame(columns=df_X.columns)
+dummy_Y=pd.DataFrame(columns=df_Y.columns)
+print(X_train.shape)
+for i in range(0,1000):
+    data=[{'mean_0':0.0, 'min_0':0.0, 'max_0':0.0, 'median_0':0.0, 'sum_0':0.0}]
+    dummy_X=dummy_X.append(data)
+    dummy_Y=dummy_Y.append([{"Y":"dummy_Y"}])
+X_train=X_train.append(dummy_X)
+y_train=y_train.append(dummy_Y)
+print(X_train.shape)
+X_train.dropna(inplace=True,axis=1)
+oversample=SVMSMOTE()
+X_train,y_train=oversample.fit_resample(X_train,y_train)
+X_train=X_train[X_train.median_0 != 0]
+y_train=y_train[y_train.Y != "dummy_Y"]
+print(X_train.shape)
+"""
+
+rf = RandomForestClassifier(n_estimators = 500)
+#rf=ExtraTreesClassifier(n_estimators=500)
 #rf = DecisionTreeClassifier()
-rf = XGBClassifier(min_child_weight= 5, max_depth= 20, learning_rate= 0.1, gamma= 0.01, colsample_bytree= 0.5)
-#rf = KNeighborsClassifier(n_neighbors=8)
+#rf = XGBClassifier(max_depth= 20, learning_rate= 0.1, gamma= 0.01, colsample_bytree= 0.5)
+#rf = KNeighborsClassifier(n_neighbors=15)
 #rf = GaussianNB()
 #rf= svm.SVC(kernel='rbf')
+
+#rf=VotingClassifier([('rf',RandomForestClassifier(n_estimators = 500)), ('et',ExtraTreesClassifier(n_estimators=500)),
+                     #('xg',XGBClassifier(max_depth= 20, learning_rate= 0.1, gamma= 0.01, colsample_bytree= 0.5))])
+                     #,('knn',KNeighborsClassifier(n_neighbors=8)), ('svm',svm.SVC(kernel='rbf'))])
+
 rf.fit(X_train, y_train)
 
 pred=rf.predict(X_test)

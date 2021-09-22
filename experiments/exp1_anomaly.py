@@ -56,6 +56,7 @@ contamination=0.2
 
 #Dataset to be read and processed
 dataset_name="current_dataset.csv"
+mac_model_file="../MAC-Model.txt"
 
 df=pd.read_csv(dataset_dir+"/"+dataset_name, index_col=False, header=None)
 final_df = pd.DataFrame()
@@ -63,6 +64,14 @@ df_X = df.iloc[:, :-1]
 df_Y = df.iloc[:, -1:]
 print(df.describe())
 df_X = df_X.iloc[:, [1]]  # 0,1,2
+
+#### Add model to the label to add clarity in the plots #####
+mac_model={}
+with open(mac_model_file) as f:
+    for line in f:
+        p=line.split(" ")
+        mac_model[p[0]]=p[3]
+df_Y[7]=df_Y[7].apply(lambda x: mac_model[str(x)]+"_"+str(x))
 
 list_TP = []
 list_FP = []
