@@ -103,7 +103,7 @@ do
 	fi
 
 	#	Data extraction from perf results
-	sample=$(echo "$tempOutput" | cut -c -20 | tr -s " " | tail -n +5 | head -n -3 | tr "\n" "," | sed 's/ //g'| sed 's/.$//')
+	sample=$(echo "$tempOutput" | cut -c -20 | tr -s " " | tail -n +4 | head -n -2 | tr "\n" "," | sed 's/ //g'| sed 's/.$//')
 	seconds=$(echo "$tempOutput" | tr -s " " | cut -d " " -f 2 | tail -n 1 | tr "," ".")
 
 
