@@ -3,7 +3,7 @@ After=network.target
 
 [Service]
 Environment="AUTOSSH_GATETIME=0"
-ExecStart=/usr/bin/autossh -N -R 20050:localhost:22 pedromiguel@deeplearning.inf.um.es -i /root/id_rsa
+ExecStart=/usr/bin/autossh -N -R 20050:localhost:22 pedromiguel@deeplearning.inf.um.es -i /root/id_rsa -o StrictHostKeyChecking=no
 
 [Install]
 WantedBy=multi-user.target
