@@ -1,0 +1,14 @@
+Sensores Casa Pedro:
+20009: pedro_office b8:27:eb:63:5b:27
+20010: pedro_office_Rpi4 dc:a6:32:e4:49:05
+
+Sensores Thun:
+20011: pedro_thun_RPi4 dc:a6:32:4c:9a:d0
+20012: pedro_thun_RPi3_2 b8:27:eb:10:a7:e6
+20013: pedro_thun_RPi3 b8:27:eb:a9:15:d1
+
+Sensores UZH:
+20101: UZH_FL_CyberSpec_3 e4:5f:01:15:dd:f2
+20102: UZH_CyberSpec_3 b8:27:eb:55:3d:95
+20103: UZH_CyberSpec_5 b8:27:eb:45:3f:c5
+20104: UZH_FL_CyberSpec_1 b8:27:eb:e0:85:25
