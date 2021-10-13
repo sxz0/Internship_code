@@ -28,14 +28,19 @@ warnings.filterwarnings("ignore")
 pd.set_option('display.max_columns', None)
 
 #General parameters for the experiments
-n_devices=32
 dataset_dir="../datasets"
-n_samples_device = 200 #10000
+n_samples_device = 800 #10000
 window=10
-test_size=0.5
+n_recursive_windows=10
+jump=10
+initial_window=window
+test_size=0.40
+feat_list=[1,4,5,6]
+n_feat_selec=15
+model="_"
 
 #Dataset to be read and processed
-dataset_name="sleep_4mins.csv"
+dataset_name="sleep_2min_800_longhash_noreboot_5fings.csv"#"sleep_2min_400.csv"
 mac_model_file="../MAC-Model.txt"
 
 df=pd.read_csv(dataset_dir+"/"+dataset_name, index_col=False, header=None)
@@ -47,7 +52,7 @@ df_X = df.iloc[:, :-1]
 df_Y = df.iloc[:, -1:]
 print(df.describe())
 
-df_X = df_X.iloc[:, 1:]  # 0,1,2
+df_X = df_X.iloc[:, feat_list]  # 0,1,2
 df_Y.columns=[0]
 
 #### Add model to the label to add clarity in the plots #####
@@ -63,21 +68,22 @@ for n in range(0,df.shape[0]//n_samples_device):
     df_X_selec = df_X[n * n_samples_device:n * n_samples_device + n_samples_device]
     df_Y_selec = df_Y[n * n_samples_device:n * n_samples_device + n_samples_device]
 
-    window=10
+    window=initial_window
 
     temp_df = pd.DataFrame()
     temp_df = temp_df.append(df_Y_selec)
-    for c in range(1,11):#(df_X_selec.shape[1]): #(1):
-        df_X_selec_c=df_X_selec.iloc[:, 0]
-        temp_df["mean_"+str(c)] = df_X_selec_c.rolling(window).mean()
-        temp_df["min_"+str(c)]=df_X_selec_c.rolling(window).min()
-        temp_df["max_"+str(c)]=df_X_selec_c.rolling(window).max()
-        temp_df["median_"+str(c)] = df_X_selec_c.rolling(window).median()
-        #temp_df["stdev_"+str(c)] = df_X_selec_c.rolling(window).std()
-        #temp_df["skew_"+str(c)] = df_X_selec_c.rolling(window).skew()
-        #temp_df["kurt_"+str(c)] = df_X_selec_c.rolling(window).kurt()
-        temp_df["sum_"+str(c)] = df_X_selec_c.rolling(window).sum()
-        window+=10
+    for c in range(n_recursive_windows):#(df_X_selec.shape[1]): #(1):
+        for f in range(df_X_selec.shape[1]):
+            df_X_selec_c=df_X_selec.iloc[:, f]
+            temp_df["mean_"+str(window)+"_"+str(f)] = df_X_selec_c.rolling(window).mean()
+            temp_df["min_"+str(window)+"_"+str(f)]=df_X_selec_c.rolling(window).min()
+            temp_df["max_"+str(window)+"_"+str(f)]=df_X_selec_c.rolling(window).max()
+            temp_df["median_"+str(window)+"_"+str(f)] = df_X_selec_c.rolling(window).median()
+            #temp_df["stdev_"+str(window)+"_"+str(f)] = df_X_selec_c.rolling(window).std()
+            #temp_df["skew_"+str(window)] = df_X_selec_c.rolling(window).skew()
+            #temp_df["kurt_"+str(window)] = df_X_selec_c.rolling(window).kurt()
+            temp_df["sum_"+str(window)+"_"+str(f)] = df_X_selec_c.rolling(window).sum()
+        window+=jump
 
     temp_df["Y"] = df_Y_selec
 
@@ -91,9 +97,13 @@ final_df.dropna(inplace=True)
 print(final_df)
 print(final_df.shape)
 
+final_df=final_df[final_df["Y"].str.contains(model)]
+
 df_X=final_df.iloc[:,:-1]
 df_Y=final_df.iloc[:,-1:]
 X_train,X_test, y_train,y_test = train_test_split(df_X,df_Y, test_size=test_size,shuffle=False)#, stratify=df_Y) #IMPORTANT
+
+#X_train,X_test, y_train,y_test = train_test_split(X_test,y_test, test_size=0.5,shuffle=False)#, stratify=df_Y) #IMPORTANT
 
 
 ####DATA AUGMENTATION
@@ -116,16 +126,16 @@ y_train=y_train[y_train.Y != "dummy_Y"]
 print(X_train.shape)
 """
 
-rf = RandomForestClassifier(n_estimators = 500)
+rf = RandomForestClassifier(n_estimators = 100,bootstrap=False,n_jobs=6,random_state=42)
 #rf=ExtraTreesClassifier(n_estimators=500)
 #rf = DecisionTreeClassifier()
-#rf = XGBClassifier(max_depth= 20, learning_rate= 0.1, gamma= 0.01, colsample_bytree= 0.5)
+#rf = XGBClassifier()#max_depth= 20, learning_rate= 0.1, gamma= 0.01, colsample_bytree= 0.5)
 #rf = KNeighborsClassifier(n_neighbors=15)
 #rf = GaussianNB()
 #rf= svm.SVC(kernel='rbf')
 
 #rf=VotingClassifier([('rf',RandomForestClassifier(n_estimators = 500)), ('et',ExtraTreesClassifier(n_estimators=500)),
-                     #('xg',XGBClassifier(max_depth= 20, learning_rate= 0.1, gamma= 0.01, colsample_bytree= 0.5))])
+                     #('xg',XGBClassifier())],n_jobs=6,voting="hard")#max_depth= 20, learning_rate= 0.1, gamma= 0.01, colsample_bytree= 0.5))])
                      #,('knn',KNeighborsClassifier(n_neighbors=8)), ('svm',svm.SVC(kernel='rbf'))])
 
 rf.fit(X_train, y_train)
@@ -136,6 +146,8 @@ print("Accuracy: {}".format(accuracy))
 print(classification_report(y_test, pred, target_names=rf.classes_))
 
 array=confusion_matrix(y_test, pred)
+array=array.astype('float') / array.sum(axis=1)[:, np.newaxis]
+array=array.round(2)
 df_cm = pd.DataFrame(array)
 plt.figure(figsize = (35,35))
 sn.heatmap(df_cm, annot=True, cmap='Blues', fmt='g',xticklabels=rf.classes_, yticklabels=rf.classes_)
@@ -147,3 +159,23 @@ indices=np.argsort(importances)[::-1]
 
 for f in range(X_train.shape[1]):
     print("%2d) %-*s %f" % (f + 1, 30,feat_labels[indices[f]],importances[indices[f]]))
+
+
+X_train=X_train.iloc[:,indices[:n_feat_selec]]
+X_test=X_test.iloc[:,indices[:n_feat_selec]]
+
+rf.fit(X_train, y_train)
+
+pred=rf.predict(X_test)
+accuracy=rf.score(X_test,y_test)
+print("Accuracy: {}".format(accuracy))
+print(classification_report(y_test, pred, target_names=rf.classes_))
+
+array=confusion_matrix(y_test, pred)
+array=array.astype('float') / array.sum(axis=1)[:, np.newaxis]
+array=array.round(2)
+df_cm = pd.DataFrame(array)
+plt.figure(figsize = (35,35))
+plt.yticks(rotation=45)
+sn.heatmap(df_cm, annot=True, cmap='Blues', fmt='g',xticklabels=rf.classes_, yticklabels=rf.classes_)
+plt.show()
