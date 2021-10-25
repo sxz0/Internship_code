@@ -9,7 +9,8 @@ The devices where organized in a local network with the following IPs:
 
 *command_RPiXXXX.sh* scripts help to send commands to all the devices of the same model/same GPU
 
-*launch_data_collection.sh* and *gather_data.sh* are used to start the data collection campains and retrieve the data afterwards.
+*launch_data_collection.sh* and *gather_data.sh* are used to start the data collection campaigns and retrieve the data afterwards.
+  *launch_data_collection_stress.sh* launches the data collection campaign together with *stress-ng* command exhaustively using device resources.
 
 *quick_ssh.sh* just wraps the ssh connection generation by receiving the last IP number, avoiding to write the pass in each connection.
 
