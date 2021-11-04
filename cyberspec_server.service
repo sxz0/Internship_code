@@ -1,0 +1,13 @@
+Description=CyberSpec REST Server
+After=network.target
+User=pedromiguel
+
+[Service]
+Environment="SERVER_GATETIME=0"
+ExecStart= /bin/sh -c 'cd /home/pedromiguel/Suiza/CyberSpec/REST_server; /home/pedromiguel/anaconda3/bin/python3 -u REST_server.py'
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
