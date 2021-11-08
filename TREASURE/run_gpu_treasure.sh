@@ -14,10 +14,10 @@ fi
 
 model=$( cat /proc/device-tree/model | sed 's/\x0//g' )
 loop1=19
-loop2=9
+loop2=19
 core=3
-secs=600
-random=1000000
+secs=120
+random=100000000
 
 if [[ $model == *"Pi 4"* ]];
 then
@@ -25,7 +25,7 @@ then
 	do
 		for i in `seq 0 $loop2`
 		do
-			taskset -c $core sudo nice --20 sudo PYTHONPATH=sandbox/ python3 TREASURE_tests_VC6.py $secs $random >> feat_gpu_$mac
+			taskset -c $core sudo chrt --rr 99 sudo PYTHONPATH=sandbox/ python3 TREASURE_tests_VC6.py $secs $random >> feat_gpu_$mac
 		done
 		sleep 2
 	done
@@ -35,7 +35,7 @@ then
 	do
 		for i in `seq 0 $loop2`
 		do
-			taskset -c $core sudo nice --20 sudo python3 TREASURE_tests_VC4.py $secs $random >> feat_gpu_$mac
+			taskset -c $core sudo chrt --rr 99 sudo python3 TREASURE_tests_VC4.py $secs $random >> feat_gpu_$mac
 		done
 		sleep 2
 	done
@@ -44,11 +44,13 @@ else
 	do
 		for i in `seq 0 $loop2`
 		do
-			sudo nice --20 sudo python3 TREASURE_tests_VC4.py $secs $random >> feat_gpu_$mac
+			sudo chrt --rr 99 sudo python3 TREASURE_tests_VC4.py $secs $random >> feat_gpu_$mac
 		done
 		sleep 2
 	done
 fi
+
+sudo reboot
 
 #done
 

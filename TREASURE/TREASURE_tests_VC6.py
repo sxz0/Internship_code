@@ -1078,16 +1078,18 @@ def main():
 		
 		results.append(get_QPU_freq(s))
 		
-		for i in test_clock():
-                	results.append(i)
-		for i in test_clock():
-                	results.append(i)
+		#for i in test_clock():
+                #	results.append(i)
+		#for i in test_clock():
+                #	results.append(i)
 		
 		results.append(cpu_hash())
 		#results.append(os.popen("vcgencmd measure_clock core").read[:-1])
 		results.append(cpu_random())
 		results.append(cpu_true_random(r))
 		
+		for i in sgemm_rnn_naive():
+			results.append(i)
 		
 		"""results.append(get_QPU_freq(1))
 		results.append(get_QPU_freq(2))
